@@ -1,0 +1,11 @@
+# ignore unnecessary resources to make this repo light
+
+### src folder
+src/conda_env/*
+src/git_repo/*
+
+
+### output folder
+output/*
+
+
