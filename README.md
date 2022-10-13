@@ -1,9 +1,30 @@
-# Strobemer extension
-Apply the idea of CMash to Strobemer and benchmark the performance.
+# Apply the truncation idea to Strobemer
+
+### Current tasks:
+
+- [ ] Init a genome object to incorporate the following features: k-mer, randstrobe, extension-randstrobe, syncmer, and extension-syncmer
+- [ ] Write a document for the object usage
+
+
+
+### Brainstorm
+
+1. Conclusion from benchmark tests:
+   1. **Strobemer == Extension_strobemer**: evaluation matrices (match, sequence coverage etc.) are similar in strobemer and extension-strobemer
+   2. **Strobemer always have better sequence coverage** than k-mer; and its match ratio will outperform k-mer when mutation rate p is high (>0.2)
+
+2. Future directions:
+   1. Apply the extension idea to syncmer and integrate it into Strobealign
+   2. Apply the extension idea to randstrobe and use the adjustable sequence match to compare sequences (show superority than k-mer)
+   3. Relate extension-randstrobe-based CI to k-mer based CI. Similar to the Mash Distance plot, try if we can find high correlation between the CIs. If so, some theory works might be added. 
+
+
+
+### Contents
+
 - [Algorithm overview: k-min extension for strobemer](#alg)
-- [Py code implementation](#code)
-- [Benchmark 1: evaluation matrix for extended strobemers vs regular strobemers](#eval)
-- [Benchmark 2: influence of k value on different mutation rate](#optk)
+
+  
 
 </br>
 
@@ -39,15 +60,6 @@ A figure illustration:
 
    c) this ensures that the sampling protocol are the same in query and ref though being random
    
-</br>
-
-## (TBD) Py code details <a name="code"></a>
 
 </br>
 
-## (TBD) Benchmark 1: extension performance  <a name="eval"></a>
-
-</br>
-
-## (TBD) Benchmark 2: influence of k value with different mutation rate <a name="optk"></a>
-</br>
