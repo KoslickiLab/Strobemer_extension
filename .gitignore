@@ -10,7 +10,4 @@ src/.idea
 ### conda env folder
 src/conda_env
 
-### output folder
-output/*
-!output
 
