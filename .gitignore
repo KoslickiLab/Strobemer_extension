@@ -5,6 +5,7 @@
 
 ### ignore .idea (generated due to PyCharm project)
 .idea
+src/.idea
 
 ### conda env folder
 src/conda_env
