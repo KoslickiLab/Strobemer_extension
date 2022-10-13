@@ -12,5 +12,5 @@ src/conda_env
 
 ### output folder
 output/*
-
+!output
 
