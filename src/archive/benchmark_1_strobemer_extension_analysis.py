@@ -671,8 +671,9 @@ def s3_workflow_with_npk_from_input_dict_and_mutate_str(raw_dict: dict, seq_list
 	
 	# mutate str for n times
 	for mutated_str in seq_list:
+		###(!!!) should use "wmin=wmin, wmax=wmax" here, manually change them to 25, 50 for benchmark 2 temporarily usage
 		dict_mutate = s1_generate_all_types_of_kmers(input_string=mutated_str, k_value=k, strobe_size=int(strobe_size),
-		                                             wmin=wmin, wmax=wmax)
+		                                             wmin=25, wmax=50)
 		temp_eval = s2_get_eval_matrix_between_kmer_dict_from_2_strings(raw_dict, dict_mutate)
 		out_list.append(temp_eval.copy())
 		del temp_eval
