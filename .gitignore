@@ -3,6 +3,9 @@
 ### ignore .DS_store
 .DS_Store
 
+### ignore .idea (generated due to PyCharm project)
+.idea
+
 ### conda env folder
 src/conda_env
 
