@@ -1,0 +1,8 @@
+seaborn
+kmc
+sourmash
+khmer
+biopython
+marisa-trie
+pytest
+

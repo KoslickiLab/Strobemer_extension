@@ -7,7 +7,5 @@
 .idea
 src/.idea
 
-### conda env folder
-src/conda_env
 
 
