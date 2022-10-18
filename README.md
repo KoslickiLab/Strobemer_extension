@@ -59,7 +59,7 @@ Build scripts to perform specific analysis.
 
 Basic functions of the k-mer object for extension-based randstrobe analysis. To accommodate the purpose of sequence alignment, the sequence name (e.g. “>chr1”) and k-mer locations are both stored as values in the k-mer dict. 
 
-Parameters:
+Parameters (also attributes)
 
 | Keyword  | Default value | Information                                         |
 | -------- | ------------- | --------------------------------------------------- |
@@ -86,6 +86,22 @@ Functions:
 | export_to_pkl                  | Save this object into a pickle object                        |
 | kmer_query                     | Check if a k-mer exists in this object                       |
 | prefix_query                   | Check if a prefix exists in this object                      |
+
+</br>
+
+[Additional attributes](https://github.com/KoslickiLab/Strobemer_extension/blob/902eab72676788b25ebadf2f387a65d8e9a23b2f/src/extension_strobemer_obj.py#L93)
+
+| Name                 | Contents                                              |
+| -------------------- | ----------------------------------------------------- |
+| seq_dict             | a dict for [seq_id : sequence] pairs                  |
+| kmer_dict            | a dict for [k-mer : seq_id + location] pairs          |
+| kmer_tst             | a ternary search tree for all k-mers                  |
+| regu_randstrobe_dict | a dict for [randstrobe : seq_id + location] pairs     |
+| ext_randstrobe_dict  | a dict for [ext_randstrobe : seq_id + location] pairs |
+| ext_randstrobe_tst   | a ternary search tree for all ext_randstrobes         |
+| (To be added)        |                                                       |
+
+
 
 </br>
 
