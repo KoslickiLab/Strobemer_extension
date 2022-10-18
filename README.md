@@ -92,8 +92,10 @@ Functions:
 Examples
 
 ```
+from src.extension_strobemer_obj import *
+
 # use the toy data
-input_file = "test_data/toy_data.fna"
+input_file = "test/test_data/toy_data.fna"
 
 # build a dict of [seq_id : sequence] pair from fasta file. It's necessary for multi-contig genomes.
 # the reason why I leave this step outside the object is for comparison of mutated genomes
@@ -122,7 +124,8 @@ temp_obj.print_info()
 
 some_manual_prefix = 'CTAATGGAGAAACTCAT'
 # now only support prefix search in [kmer, ers]
-temp_obj.prefix_query(some_manual_prefix, kmer_type='ers')
+temp_obj.prefix_query(some_manual_prefix, kmer_type='ers') #this is empty
+temp_obj.prefix_query(some_manual_prefix, kmer_type='kmer')
 
 temp_obj.kmer_query('GTCTTGCAATAATGGCAAAACTAAATGTAC', kmer_type='kmer')
 temp_obj.kmer_query('GTCTTGCAATAATGGCAAAACTAAATGTAC', kmer_type='rs')
