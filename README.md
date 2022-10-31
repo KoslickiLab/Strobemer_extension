@@ -2,8 +2,11 @@
 
 ### Current tasks:
 
-- [ ] Init a genome object to incorporate the following features: k-mer, randstrobe, extension-randstrobe, syncmer, and extension-syncmer
-- [ ] Write a document for the object usage
+- [ ] Review the ext-strobemer story
+- [ ] Confirm the application of ext-strobe + syncmer in alignment seeding
+- [ ] Benchmark: correlation between k-mer JI, strobmer-JI, and ext-strobe-JI
+
+
 
 
 
@@ -61,17 +64,19 @@ Basic functions of the k-mer object for extension-based randstrobe analysis. To 
 
 Parameters (also attributes)
 
-| Keyword  | Default value | Information                                         |
-| -------- | ------------- | --------------------------------------------------- |
-| k        |               | k-mer length                                        |
-| n        |               | number of strobes                                   |
-| l        |               | length of a single strobe                           |
-| smin     | 5             | length of sub-strobe for extension-based randstrobe |
-| wmin     | 25            | min window size for strobemer                       |
-| wmax     | 50            | max window size for strobemer                       |
-| prime    | 6229          | prime number to mod for randstrobe selection        |
-| label    | "no_label"    | keyword for output files                            |
-| filename | "no_filename" | store the corresponding genome file if needed       |
+| Keyword            | Default value | Information                                         |
+| ------------------ | ------------- | --------------------------------------------------- |
+| k                  |               | k-mer length                                        |
+| n                  |               | number of strobes                                   |
+| l                  |               | length of a single strobe                           |
+| smin               | 5             | length of sub-strobe for extension-based randstrobe |
+| wmin               | 25            | min window size for strobemer                       |
+| wmax               | 50            | max window size for strobemer                       |
+| syncmer_length     | 20            | length of syncmer                                   |
+| sync_submer_length | 5             | length of substring to select a syncmer             |
+| prime              | 6229          | prime number to mod for randstrobe selection        |
+| label              | "no_label"    | keyword for output files                            |
+| filename           | "no_filename" | store the corresponding genome file if needed       |
 
 </br>
 
@@ -83,6 +88,7 @@ Functions:
 | load_seq_dict                  | Load a dict of [seq_id : sequence] pairs into this object    |
 | build_kmer_dict_with_start_pos | Build k-mer dict of [k-mer : seq_id + location] pairs and save k-mers into a ternary search tree |
 | build_both_randstrobe_dict     | 1. Build regular randstrobe dict of [k-mer : seq_id + location] pairs <br />2. Build extension-based randstrobe dict of [k-mer : seq_id + location] pairs<br />3. Save k-mers from extension-based randstrobe into a ternary search tree for prefix lookup |
+| build_open_syncmer             | Build open syncmer dict of [k-mer : seq_id + location] pairs and save k-mers into a ternary search tree |
 | export_to_pkl                  | Save this object into a pickle object                        |
 | kmer_query                     | Check if a k-mer exists in this object                       |
 | prefix_query                   | Check if a prefix exists in this object                      |
@@ -99,7 +105,8 @@ Functions:
 | regu_randstrobe_dict | a dict for [randstrobe : seq_id + location] pairs     |
 | ext_randstrobe_dict  | a dict for [ext_randstrobe : seq_id + location] pairs |
 | ext_randstrobe_tst   | a ternary search tree for all ext_randstrobes         |
-| (To be added)        |                                                       |
+| self.syncmer_dict    | a dict for [open syncmer : seq_id+location] pairs     |
+| self.aux_syncmer     | a dict for binary syncmer location                    |
 
 
 
