@@ -10,6 +10,7 @@ def test_object_performance():
 	temp_obj.load_seq_dict(raw_seq_dict)
 	temp_obj.build_kmer_dict_with_start_pos()
 	temp_obj.build_both_randstrobe_dict()
+	temp_obj.build_open_syncmer()
 	temp_obj.print_info()
 	#temp_obj.export_to_pkl()
 	

@@ -90,7 +90,9 @@ def load_pkl_obj(pkl_file):
 
 # create the main class for extension-based strobemers
 class ext_strobemer_obj:
-	def __init__(self, k: int, n: int, l: int, smin: int=5, wmin: int=25, wmax: int=50, prime: int=6229, label: str="no_label", filename: str="no_filename"):
+	def __init__(self, k: int, n: int, l: int, smin: int=5, wmin: int=25, wmax: int=50,
+	             syncmer_lenth: int=20, sync_submer_lenth: int=5,
+	             prime: int=6229, label: str="no_label", filename: str="no_filename"):
 		"""
 		Init a ext_strobemer_obj
 		
@@ -100,6 +102,8 @@ class ext_strobemer_obj:
 		:param smin: minimal strobe length for the selection of strobe to build extension-based strobemers
 		:param wmin: min window size for strobe selection
 		:param wmax: max window size for strobe selection
+		:param syncmer_lenth: length of the syncmer
+		:param sync_submer_lenth: length of substr s to select syncmer from long sequences
 		:param prime: a prime number for strobe selection (don't need a large one given that the window is small)
 		:param label: keyword for input file / output file
 		:param filename: store genome file if necessary
@@ -115,6 +119,8 @@ class ext_strobemer_obj:
 			raise Exception("Strobemer length NOT EQUAL to k-mer length, plaese double check parameters")
 		self.wmin = wmin
 		self.wmax = wmax
+		self.syncmer_length = syncmer_lenth
+		self.sync_submer_lenth = sync_submer_lenth
 		self.prime = prime
 		self.label = label
 		self.filename = filename
@@ -126,9 +132,9 @@ class ext_strobemer_obj:
 		self.regu_randstrobe_dict = {}
 		self.ext_randstrobe_dict = {}
 		self.ext_randstrobe_tst = None # for TST object
-		self.regu_syncmer_dict = {}
-		self.ext_syncmer_dict = {}
-		self.ext_syncmer_tst = None # for TST object
+		self.syncmer_dict = {}
+		self.syncmer_tst = None # for TST object
+		self.aux_syncmer = {}
 	
 	def print_info(self):
 		"""
@@ -141,6 +147,8 @@ class ext_strobemer_obj:
 		print("Extension-strobe length: %s" % self.smin)
 		print("Min window size: %s" % self.wmin)
 		print("Max window size: %s" % self.wmax)
+		print("Suncymer length is %s" % self.syncmer_length)
+		print("Syncmer substr length is %s" % self.sync_submer_lenth)
 		print("Prime number for randstrobe: %s" % self.prime)
 		print("File label: %s" % self.label)
 		print("File name: %s \n" % self.filename)
@@ -162,6 +170,10 @@ class ext_strobemer_obj:
 		if self.ext_randstrobe_dict and self.ext_randstrobe_tst:
 			print("Extension-based randstrobe dict: %s unique records" % len(self.ext_randstrobe_dict))
 			print("In addition, a TST has been built for ext_randstrobes \n")
+			
+		if self.syncmer_dict and self.syncmer_tst:
+			print("Syncmer dict: %s unique records" %len(self.syncmer_dict))
+			print("In addition, a TST has been built for syncmers")
 	
 	def load_seq_dict(self, seq_dict):
 		"""
@@ -286,6 +298,46 @@ class ext_strobemer_obj:
 				
 		# also build a TST for ext_strobemer
 		self.ext_randstrobe_tst = mt.Trie(ext_rs_dict.keys())
+	
+	@staticmethod
+	def is_kmer_an_open_syncmer(input_string: str, submer_length: int):
+		"""
+		Determine if a given kmer (string) is an OPEN syncmer at given submer_length via lexicographic order.
+		:param input_string: a kmer
+		:param submer_length: the length substring in this kmer for syncmer selection
+		"""
+		temp_start = input_string[:submer_length]
+		for i in range(len(input_string) - submer_length + 1):
+			if temp_start > input_string[i:i+submer_length]:
+				return False
+		# o.w., the start is minimum, so this is an open syncmer
+		return True
+	
+	def build_open_syncmer(self):
+		"""
+		Build a syncmer dict for this object, and also maintain a auxiliary dict to store chr:binary list of syncmer start location.
+		This auxiliary dictionary is for faster randstrobe-syncmer index.
+		"""
+		sync_len = self.syncmer_length
+		sub_len = self.sync_submer_lenth
+		sync_dict = self.syncmer_dict
+		aux_infor = self.aux_syncmer
+		
+		for seq_id in self.seq_dict:
+			seq = self.seq_dict[seq_id]
+			# use a binary list to save the syncmer start location
+			sync_binary_record = [0] * len(seq)
+			# get substring, i.e. k-mers
+			for i in range(len(seq) - sync_len + 1):
+				kmer = seq[i:i + sync_len]
+				if self.is_kmer_an_open_syncmer(input_string=kmer, submer_length=sub_len):
+					sync_binary_record[i] = 1
+					self.write_or_extend_kmer_record_to_dict(sync_dict, kmer, item_value="_".join([seq_id, "i", str(i)]))
+			# update auxiliary information (this is int list and will be re-initiated in next round loop)
+			aux_infor[seq_id] = sync_binary_record
+			
+		# make TST
+		self.syncmer_tst = mt.Trie(sync_dict.keys())
 		
 	def export_to_pkl(self):
 		"""
@@ -300,7 +352,7 @@ class ext_strobemer_obj:
 		Query (exact match) if a given kmer is in a specific kmer dict
 		
 		:param kmer: query kmer to search for exact match
-		:param kmer_type: which kmer dict to search, including ['kmer', 'rs', 'ers']
+		:param kmer_type: which kmer dict to search, including ['kmer', 'rs', 'ers', 'sync']
 		:return: genomic location of the kmer if found, o.w. return empty list
 		"""
 		if kmer_type == 'kmer':
@@ -318,19 +370,26 @@ class ext_strobemer_obj:
 				return self.ext_randstrobe_dict[kmer]
 			except KeyError:
 				return []
+		elif kmer_type == 'sync':
+			try:
+				return self.syncmer_dict[kmer]
+			except KeyError:
+				return []
 			
 	def prefix_query(self, kmer: str, kmer_type: str):
 		"""
 		Find the k-mer that contains a given prefix from the pre-built TST
 		
 		:param kmer: query prefix
-		:param kmer_type: which TST to search, including [kmer, ers]
+		:param kmer_type: which TST to search, including [kmer, ers, sync]
 		:return: a list of kmers containing the given prefix, or empty list if not found
 		"""
 		if kmer_type == 'kmer':
 			return self.kmer_tst.keys(kmer)
 		elif kmer_type == 'ers':
 			return self.ext_randstrobe_tst.keys(kmer)
+		elif kmer_type == 'sync':
+			return self.syncmer_tst.keys(kmer)
 
 		
 		
