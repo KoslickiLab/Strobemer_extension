@@ -90,8 +90,8 @@ def load_pkl_obj(pkl_file):
 
 # create the main class for extension-based strobemers
 class ext_strobemer_obj:
-	def __init__(self, k: int, n: int, l: int, smin: int=5, wmin: int=25, wmax: int=50,
-	             syncmer_lenth: int=20, sync_submer_lenth: int=5,
+	def __init__(self, k: int=20, n: int=2, l: int=10, smin: int=8, wmin: int=25, wmax: int=55,
+	             syncmer_lenth: int=20, syncmer_min: int=16, sync_submer_lenth: int=12,
 	             prime: int=6229, label: str="no_label", filename: str="no_filename"):
 		"""
 		Init a ext_strobemer_obj
@@ -103,6 +103,7 @@ class ext_strobemer_obj:
 		:param wmin: min window size for strobe selection
 		:param wmax: max window size for strobe selection
 		:param syncmer_lenth: length of the syncmer
+		:param syncmer_min: mimimum length of the syncmer to init the extension process
 		:param sync_submer_lenth: length of substr s to select syncmer from long sequences
 		:param prime: a prime number for strobe selection (don't need a large one given that the window is small)
 		:param label: keyword for input file / output file
@@ -120,7 +121,10 @@ class ext_strobemer_obj:
 		self.wmin = wmin
 		self.wmax = wmax
 		self.syncmer_length = syncmer_lenth
+		self.syncmer_min = syncmer_min
 		self.sync_submer_lenth = sync_submer_lenth
+		if syncmer_min <= sync_submer_lenth:
+			raise Exception("Ext-syncmer starting length should be longer than the submer length.")
 		self.prime = prime
 		self.label = label
 		self.filename = filename
@@ -135,6 +139,7 @@ class ext_strobemer_obj:
 		self.syncmer_dict = {}
 		self.syncmer_tst = None # for TST object
 		self.aux_syncmer = {}
+		
 	
 	def print_info(self):
 		"""
@@ -338,7 +343,37 @@ class ext_strobemer_obj:
 			
 		# make TST
 		self.syncmer_tst = mt.Trie(sync_dict.keys())
+	
+	@staticmethod
+	def is_kmer_a_t_shift_canonical_open_syncmer(input_string: str, submer_length: int, t: int):
+		"""
+		Determine if a given kmer (string) is a t-shift OPEN syncmer at given submer_length via lexicographic order. The submer is in its canonical form
+		:param input_string: a kmer
+		:param submer_length: the length substring in this kmer for syncmer selection
+		:param t: location shift of the submer, t means the minimum submer is at position t instead of 0 (beginning). Using t = floor( (n-s)/2 ) ensures that both strand will be selected
+		"""
+		# the canonical form of the selected submer
+		temp_start = input_string[t:t + submer_length]
+		temp_start = min(temp_start, khmer.reverse_complement(temp_start))
 		
+		# compare to other submers, this loop contains the selected submer itself. But it doesn't matter as we use ">" here (will give an equal for itself)
+		for i in range(len(input_string) - submer_length + 1):
+			current_submer = input_string[i:i + submer_length]
+			current_submer = min(current_submer, khmer.reverse_complement(current_submer))
+			if temp_start > current_submer:
+				return False
+		# o.w., the start is minimum, so this is an open syncmer
+		return True
+
+	def build_mid_shift_canonical_open_syncmer(self):
+		"""
+		Build mid-shift canonical open syncmers as it's in Strobealign
+		"""
+		print("TBD")
+		
+	def build_extension_mid_shift_canonical_open_syncmer(self):
+		print("TBD")
+	
 	def export_to_pkl(self):
 		"""
         Explort to a pkl file.
